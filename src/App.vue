@@ -1,28 +1,57 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <div class="container">
+      <place-input />
+
+      <schedule
+        v-if="showSchedule"
+        :items="schedules"
+      />
+    </div>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue';
+import {mapGetters, mapState} from 'vuex';
+import PlaceInput from './components/PlaceInput.vue';
+import Schedule from './components/Schedule.vue';
 
 export default {
   name: 'app',
   components: {
-    HelloWorld,
+    PlaceInput,
+    Schedule,
   },
+  computed: {
+    ...mapGetters(['showSchedule']),
+    ...mapState(['schedules']),
+  }
 };
 </script>
 
 <style lang="scss">
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+  @import url('https://fonts.googleapis.com/css?family=Rubik&display=swap');
+  
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  #app {
+    font-family: 'Rubik', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+    color: #2c3e50;
+    padding: 16px 0;
+  }
+
+  .container {
+    margin-right: auto;
+    margin-left: auto;
+    max-width: 626px;
+    padding-right: 8px;
+    padding-left: 8px;
+  }
 </style>
