@@ -5,14 +5,14 @@
 
       <schedule
         v-if="showSchedule"
-        :items="schedules"
+        :items="formattedSchedules"
       />
     </div>
   </div>
 </template>
 
 <script>
-import {mapGetters, mapState} from 'vuex';
+import {mapGetters} from 'vuex';
 import PlaceInput from './components/PlaceInput.vue';
 import Schedule from './components/Schedule.vue';
 
@@ -23,8 +23,7 @@ export default {
     Schedule,
   },
   computed: {
-    ...mapGetters(['showSchedule']),
-    ...mapState(['schedules']),
+    ...mapGetters(['showSchedule', 'formattedSchedules']),
   }
 };
 </script>

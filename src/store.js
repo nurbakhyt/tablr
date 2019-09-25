@@ -9,9 +9,76 @@ export default new Vuex.Store({
     name: '',
     schedules: [],
     loading: false,
+    daysOfWeek: [
+      'Пн',
+      'Вт',
+      'Ср',
+      'Чт',
+      'Пт',
+      'Сб',
+      'Вс',
+    ],
+    today: new Date(),
   },
   getters: {
     showSchedule: state => state.schedules.length > 0,
+    numberOfDay: state => state.today.getDay(),
+    currentTime: state => `${state.today.getHours()}:${state.today.getMinutes()}`,
+    scheduleOfToday: state => state,
+    formattedSchedules: (state, getters) => state.schedules.map((schedule) => {
+      const daysByTimeMap = {};
+      let status = 'закрыто';
+
+      schedule.items.forEach((item) => {
+        if (daysByTimeMap[item.timeInterval]) {
+          daysByTimeMap[item.timeInterval] = [
+            ...daysByTimeMap[item.timeInterval],
+            item.day,
+          ];
+        } else {
+          daysByTimeMap[item.timeInterval] = [item.day];
+        }
+      });
+      const scheduleOfToday = schedule.items[getters.numberOfDay];
+      if (scheduleOfToday) {
+        if (
+          getters.currentTime >= scheduleOfToday.startAt
+          && getters.currentTime <= scheduleOfToday.endAt
+        ) {
+          status = 'открыто';
+        }
+      }
+
+      const daysByTime = Object.keys(daysByTimeMap).map((key) => {
+        const days = daysByTimeMap[key];
+
+        switch (days.length) {
+          case 0:
+            break;
+          case 1:
+            return {
+              days: days[0],
+              time: key,
+            };
+          case 2:
+            return {
+              days: `${days[0]}, ${days[1]}`,
+              time: key,
+            };
+          default:
+            return {
+              days: `${days[0]} - ${days[1]}`,
+              time: key,
+            };
+        }
+      });
+
+      return {
+        ...schedule,
+        daysByTime,
+        status,
+      };
+    }),
   },
   mutations: {
     SET_NAME_MUTATION(state, name) {
@@ -39,7 +106,32 @@ export default new Vuex.Store({
       axios.get(`${url}${state.name}`)
         .then(({ status, data }) => {
           if (status === 200) {
-            commit('SET_SCHEDULES_MUTATION', data.data.place.schedules);
+            const schedules = data.data.place.schedules.map(schedule => ({
+              ...schedule,
+              items: state.daysOfWeek.map((day, i) => {
+                const scheduleDay = schedule.items.find(item => item.dayOfWeek === i + 1);
+                if (scheduleDay) {
+                  let timeInterval = `${scheduleDay.startAt} - ${scheduleDay.endAt}`;
+
+                  if (scheduleDay.startAt === '00:00' && scheduleDay.endAt === '23:59') {
+                    timeInterval = 'Круглосуточно';
+                  }
+
+                  return {
+                    ...scheduleDay,
+                    day,
+                    timeInterval,
+                  };
+                }
+
+                return {
+                  day,
+                  timeInterval: 'Выходной',
+                };
+              }),
+            }));
+
+            commit('SET_SCHEDULES_MUTATION', schedules);
           }
         })
         .catch((res) => {

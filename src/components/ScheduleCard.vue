@@ -6,7 +6,7 @@
 		>
 			<span>Часы работы</span>
 			<span class="card__title--status">
-				{{ status }}
+				{{ item.status }}
 			</span>
 		</p>
 		<p
@@ -15,14 +15,17 @@
 		>
 			<span>{{ item.name }}</span>
 			<span class="card__title--status">
-				{{ status }}
+				<svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<circle cx="5" cy="5" r="5" fill="#737373"/>
+				</svg>
+				{{ item.status }}
 			</span>
 		</p>
 
 		<schedule-card-row
-			v-for="(day, i) in item.items"
+			v-for="(row, i) in item.daysByTime"
 			:key="i"
-			:day="day"
+			:item="row"
 			class="card__row"
 		/>
 	</div>
@@ -41,60 +44,6 @@ export default {
 			type: Object,
 			required: true,
 		}
-	},
-	data() {
-		return {
-			today: new Date(),
-			tablesheet: {
-
-			},
-		};
-	},
-	computed: {
-		status() {
-			if (this.currentTime.h >= this.scheduleTimeOfToday.startAt.h
-				&& this.currentTime.h <= this.scheduleTimeOfToday.endAt.h
-				&& this.currentTime.m >= this.scheduleTimeOfToday.startAt.m
-				&& this.currentTime.m <= this.scheduleTimeOfToday.endAt.m
-			) {
-				return 'открыто';
-			}
-
-			return 'закрыто';
-		},
-		getNumberOfDay() {
-			return this.today.getDay();
-		},
-		currentTime() {
-			const h = this.today.getHours();
-			const m = this.today.getMinutes();
-
-			return {h, m};
-		},
-		scheduleOfToday() {
-			return this.item.items[this.getNumberOfDay];
-		},
-		scheduleTimeOfToday() {
-			if (!!this.scheduleOfToday) {
-				const startAt = this.parseTime(this.scheduleOfToday.startAt);
-				const endAt = this.parseTime(this.scheduleOfToday.endAt);
-
-				return {
-					startAt,
-					endAt
-				}
-			}
-		},
-	},
-	methods: {
-		parseTime(str) {
-			const arr = str.split(':');
-			
-			return {
-				h: Number(arr[0]),
-				m: Number(arr[1]),
-			};
-		},
 	},
 }
 </script>
@@ -133,6 +82,10 @@ export default {
 
 			&--status {
 				color: rgba(0, 0, 0, 0.67);
+
+				& > svg {
+					margin-right: 5px;
+				}
 			}
 		}
 

@@ -1,48 +1,23 @@
 <template>
-	<div>
+	<p>
 		<span>
-			{{ scheduleDayOfWeek }}
+			{{ item.days }}
 		</span>
 		<span>
-			{{ scheduleTime }}
+			{{ item.time }}
 		</span>
-	</div>
+	</p>
 </template>
 
 <script>
 export default {
 	name: 'ScheduleCardRow',
 	props: {
-		day: {
+		item: {
 			type: Object,
 			required: true,
 		}
 	},
-	data() {
-		return {
-			daysOfWeek: [
-				'Пн',
-				'Вт',
-				'Ср',
-				'Чт',
-				'Пт',
-				'Сб',
-				'Вс',
-			]
-		};
-	},
-	computed: {
-		scheduleDayOfWeek() {
-			return this.daysOfWeek[this.day.dayOfWeek - 1];
-		},
-		scheduleTime() {
-			if (this.day.startAt === '00:00' && this.day.endAt === '23:59') {
-				return 'Круглосуточно';
-			}
-
-			return `${this.day.startAt} - ${this.day.endAt}`;
-		}
-	}
 }
 </script>
 
