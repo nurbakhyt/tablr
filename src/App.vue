@@ -4,9 +4,11 @@
       <place-input />
 
       <schedule
-        v-if="showSchedule"
+        v-if="showSchedule && !hasError"
         :items="formattedSchedules"
       />
+
+      <p v-if="hasError" class="message message--error">{{ errorMessage }}</p>
     </div>
   </div>
 </template>
@@ -23,7 +25,12 @@ export default {
     Schedule,
   },
   computed: {
-    ...mapGetters(['showSchedule', 'formattedSchedules']),
+    ...mapGetters([
+      'showSchedule',
+      'formattedSchedules',
+      'hasError',
+      'errorMessage',
+    ]),
   }
 };
 </script>
@@ -52,5 +59,17 @@ export default {
     max-width: 626px;
     padding-right: 8px;
     padding-left: 8px;
+  }
+
+  .message {
+    background-color: #e4e4e4;
+    border-radius: 8px;
+    padding: 1em 2em;
+    text-align: left;
+
+    &--error {
+      background-color: #c00;
+      color: #fff;
+    }
   }
 </style>

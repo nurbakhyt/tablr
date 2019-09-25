@@ -19,6 +19,7 @@ export default new Vuex.Store({
       'Вс',
     ],
     today: new Date(),
+    error: '',
   },
   getters: {
     showSchedule: state => state.schedules.length > 0,
@@ -79,6 +80,8 @@ export default new Vuex.Store({
         status,
       };
     }),
+    hasError: state => state.error.length > 0,
+    errorMessage: state => state.error,
   },
   mutations: {
     SET_NAME_MUTATION(state, name) {
@@ -93,6 +96,9 @@ export default new Vuex.Store({
     STOP_LOADING_MUTATION(state) {
       state.loading = false;
     },
+    SET_ERROR_MUTATION(state, msg) {
+      state.error = msg;
+    },
   },
   actions: {
     setPlaceName({ commit }, name) {
@@ -104,9 +110,9 @@ export default new Vuex.Store({
       const url = process.env.VUE_APP_API_URL;
 
       axios.get(`${url}${state.name}`)
-        .then(({ status, data }) => {
-          if (status === 200) {
-            const schedules = data.data.place.schedules.map(schedule => ({
+        .then((response) => {
+          if (response.status === 200) {
+            const schedules = response.data.data.place.schedules.map(schedule => ({
               ...schedule,
               items: state.daysOfWeek.map((day, i) => {
                 const scheduleDay = schedule.items.find(item => item.dayOfWeek === i + 1);
@@ -131,13 +137,14 @@ export default new Vuex.Store({
               }),
             }));
 
+            commit('SET_ERROR_MUTATION', '');
             commit('SET_SCHEDULES_MUTATION', schedules);
+          } else {
+            commit('SET_ERROR_MUTATION', 'Что-то не так');
           }
         })
-        .catch((res) => {
-          if (res.status === 404) {
-            console.log(res);
-          }
+        .catch((err) => {
+          commit('SET_ERROR_MUTATION', err.response.data.message);
         })
         .finally(() => {
           commit('STOP_LOADING_MUTATION');
